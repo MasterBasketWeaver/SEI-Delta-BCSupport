@@ -44,13 +44,12 @@ pageextension 80078 "BA Sales Order Subpage" extends "Sales Order Subform"
         }
         addafter("Total Amount Incl. VAT")
         {
-            field("BA Exchange Rate"; ExchageRate)
+            field("BA Exchange Rate"; "BA Exchange Rate")
             {
                 ApplicationArea = all;
                 Editable = false;
                 BlankZero = true;
                 ToolTip = 'Specifies the exchange rate used to calculate prices for item sales lines.';
-                Caption = 'Exchange Rate';
             }
         }
         modify("Location Code")
@@ -63,6 +62,22 @@ pageextension 80078 "BA Sales Order Subpage" extends "Sales Order Subform"
                 exit(Text <> '');
             end;
         }
+        addafter(Description)
+        {
+            field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+            {
+                ApplicationArea = all;
+            }
+            field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+            {
+                ApplicationArea = all;
+
+                trigger OnValidate()
+                begin
+                    Rec.UpdateUnitPrice(Rec.FieldNo("Gen. Prod. Posting Group"));
+                end;
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -72,21 +87,8 @@ pageextension 80078 "BA Sales Order Subpage" extends "Sales Order Subform"
         CanEditDimensions := UserSetup.Get(UserId) and UserSetup."BA Can Edit Dimensions";
     end;
 
-    trigger OnAfterGetRecord()
     var
-        SalesHeader: Record "Sales Header";
-    begin
-        if SalesHeader.Get(Rec."Document Type", rec."Document No.") then
-            ExchageRate := SalesHeader."BA Quote Exch. Rate";
-    end;
-
-    procedure SetExchangeRate(NewExchangeRate: Decimal)
-    begin
-        ExchageRate := NewExchangeRate;
-    end;
-
-    var
-        ExchageRate: Decimal;
         [InDataSet]
+
         CanEditDimensions: Boolean;
 }

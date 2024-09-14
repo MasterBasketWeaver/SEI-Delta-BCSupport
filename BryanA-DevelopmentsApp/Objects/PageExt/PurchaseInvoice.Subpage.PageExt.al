@@ -2,6 +2,35 @@ pageextension 80001 "BA Purch. Inv. Subpage" extends "Purch. Invoice Subform"
 {
     layout
     {
+        modify("No.")
+        {
+            trigger OnAfterValidate()
+            begin
+                if (xRec."No." = Rec."No.") or (Rec."No." <> '') then
+                    exit;
+                Rec.Validate("BA SEI Order Type", Rec."BA SEI Order Type"::" ");
+                Rec.Validate("BA Freight Charge Type", Rec."BA Freight Charge Type"::" ");
+            end;
+        }
+        addafter("Qty. Assigned")
+        {
+            field("BA SEI Order Type."; Rec."BA SEI Order Type")
+            {
+                ApplicationArea = all;
+            }
+            field("BA SEI Order No."; Rec."BA SEI Order No.")
+            {
+                ApplicationArea = all;
+            }
+            field("BA SEI Invoice No."; Rec."BA SEI Invoice No.")
+            {
+                ApplicationArea = all;
+            }
+            field("BA Freight Charge Type"; Rec."BA Freight Charge Type")
+            {
+                ApplicationArea = all;
+            }
+        }
         addafter(ShortcutDimCode4)
         {
             field("BA Sales Person Code"; SalesPersonCode)
@@ -63,6 +92,8 @@ pageextension 80001 "BA Purch. Inv. Subpage" extends "Purch. Invoice Subform"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.OnNewRecord(SalesPersonCode);
+        Rec.Validate("BA SEI Order Type", Rec."BA SEI Order Type"::" ");
+        Rec.Validate("BA Freight Charge Type", Rec."BA Freight Charge Type"::" ");
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -80,6 +111,7 @@ pageextension 80001 "BA Purch. Inv. Subpage" extends "Purch. Invoice Subform"
         GLSetup.Get;
         GLSetup.TestField("ENC Salesperson Dim. Code");
     end;
+
 
 
 
